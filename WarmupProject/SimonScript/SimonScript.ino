@@ -101,20 +101,21 @@ void loop() {
 LOLIN_I2C_MOTOR motor(DEFAULT_I2C_MOTOR_ADDRESS); //I2C address 0x30 SEE NOTEBELOW
 /*const char* ssid = "ASUS_NDL"; // name of local WiFi network in the NDL
 const char* password = "RT-AC66U"; // the password of the WiFi network*/
-const char* ssid = "xd"; // name of local WiFi network in the NDL
-const char* password = "test1234"; // the password of the WiFi network
+const char* ssid = "NDL_24G"; // name of local WiFi network in the NDL
+const char* password = "RT-AC66U"; // the password of the WiFi network
 MDNSResponder mdns;
 ESP8266WebServer server(LISTEN_PORT);
-String webPage = "<h1>WiFi LED control</h1>";
+String startPage = "<html><head><title>Simon commands</title></head><body><a href=\"begin\"><button style=\"background-color:blue;color:white;\">Begin</button></a></body></html>";
 bool ledOn = false;
 
 void setup() {
   Serial.begin(115200); // the serial speed
   pinMode(LED_BUILTIN, OUTPUT); // the LED
   digitalWrite(LED_BUILTIN, ledOn); // the actual status is inverted
-  webPage += "<p>Press me <a href=\"button\">";
-  webPage += "<button style=\"background-color:blue;color:white;\">";
-  webPage += "LED</button></a></p>";
+  webPage += "<html><head><title>Simon commands</title></head><body><a id=\"startButton\" href=\"start\"><button style=\"background-color:blue;color:white;\">";
+  webPage += "Begin</button></a><script>let instructions="+instructions+".split(\"-\"); let instDelay = 1500;showNextInstruction(0);";
+  webPage += "function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");instEl.innerText = instructions[i];";
+  webPage += "document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);showNextInstruction(i+1);}, instDelay);}</script></body></html>";
   WiFi.begin(ssid, password); // make the WiFi connection
   Serial.println("Start connecting.");
   while (WiFi.status() != WL_CONNECTED) {
@@ -154,6 +155,16 @@ void loop() {
   server.handleClient();
 }
 
+String generatePage() {
+  String newPage = "<html><head><title>Simon commands</title></head><body></body><script>let instructions="+generateInstructions()+".split(\"-\");";
+  newPage += "let instDelay = 1500;showNextInstruction(0);function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");";
+  newPage += "instEl.innerText = instructions[i];document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);showNextInstruction(i+1);}, instDelay);}</script></html>";
+  return newPage;
+}
+
+String generateInstructions() {
+  
+}
 
 void waitUntilMotorStart() {
   while (motor.PRODUCT_ID != PRODUCT_ID_I2C_MOTOR) { //wait motor shield ready .
