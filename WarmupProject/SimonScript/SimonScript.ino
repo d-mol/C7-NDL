@@ -84,6 +84,10 @@ String startPage = "<html><head><title>Simon commands</title></head><body><a hre
 bool ledOn = false;
 String screenTitle = "";
 
+int maxInstructions = 7;
+int randomisedInts[maxInstructions];
+int performedInstructions[maxInstructions];
+
 void writeToScreen(String text, int fontsize) {
   display.clearDisplay();
   display.setCursor(0, 0);
@@ -146,6 +150,7 @@ String generatePage() {
 }
 
 String generateInstructions() {
+
   String allInstructions[] = {"Simon says move to the right",
                               "Simon says move to the left",
                               "Simon says move up",
@@ -169,14 +174,16 @@ String generateInstructions() {
                               "Move backward",
                               "Wave*/
                               };
-  int instructionCount = sizeof(allInstructions);
+  //int instructionCount = sizeof(allInstructions);
   String instructionsString = "";
 
   randomSeed(analogRead(0));  
   int amountOfInstructions = random(2, instructionCount + 1);
 
   for(int i=0; i<amountOfInstructions; i++){
-    instructionsString += allInstructions[random(instructionCount)];
+    int randInt = random(instructionCount);
+    randomisedInts[i] = randInt;
+    instructionsString += allInstructions[randInt];
     if(i != amountOfInstructions)  
       instructionsString += "-";
   }
