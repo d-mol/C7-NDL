@@ -84,47 +84,6 @@ String startPage = "<html><head><title>Simon commands</title></head><body><a hre
 bool ledOn = false;
 String screenTitle = "";
 
-void setup() {
-  Serial.begin(115200); // the serial speed
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // i n i t i al i ze with the I2C address
-  writeToScreen("Booting", 2);
-  pinMode(LED_BUILTIN, OUTPUT); // the LED
-  digitalWrite(LED_BUILTIN, ledOn); // the actual status is inverted
-  WiFi.begin(ssid, password); // make the WiFi connection
-  Serial.println("Start connecting.");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.print("Connected to ");
-  Serial.print(ssid);
-  Serial.print(". IP address: ");
-  Serial.println(WiFi.localIP( ) );
-  if (mdns.begin("esp8266" , WiFi.localIP())) {
-    Serial.println("MDNS responder started");
-  }
-  // make handlers for input from WiFi connection
-  server.on("/" , [ ](){
-    server.send(200, "text/html" , startPage);
-  });
-
-  server.on("/begin" , [ ](){
-    server.send(200, "text/html" , generatePage());
-    ledOn = !ledOn;
-    digitalWrite(LED_BUILTIN, !ledOn);
-  });
-
-  waitUntilMotorStart();
-  server.begin( ); // start the server for WiFi input
-  Serial.println("HTTP server started");
-  screenTitle = "State";
-  writeToScreen("\nCommand: 0\nPoints: 0", 1);
-}
-void loop() {
-  server.handleClient();
-  
-}
-
 void writeToScreen(String text, int fontsize) {
   display.clearDisplay();
   display.setCursor(0, 0);
@@ -138,15 +97,57 @@ void writeToScreen(String text, int fontsize) {
   display.display();
 }
 
+void setup() {
+  Serial.begin(115200); // the serial speed
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with the I2C address
+  writeToScreen("Booting", 2);
+  pinMode(LED_BUILTIN, OUTPUT); // the LED
+  digitalWrite(LED_BUILTIN, ledOn); // the actual status is inverted
+  WiFi.begin(ssid, password); // make the WiFi connection
+  Serial.println("Start connecting.");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.print("Connected to ");
+  Serial.print(ssid);
+  Serial.print(". IP address: ");
+  Serial.println(WiFi.localIP());
+  if (mdns.begin("esp8266" , WiFi.localIP())) {
+    Serial.println("MDNS responder started");
+  }
+  
+  server.on("/" , [ ](){
+    server.send(200, "text/html" , startPage);
+  });
+
+  server.on("/begin" , [ ](){
+    server.send(200, "text/html" , generatePage());
+    ledOn = !ledOn;
+    digitalWrite(LED_BUILTIN, !ledOn);
+  });
+
+  waitUntilMotorStart();
+  server.begin(); // start the server for WiFi input
+  Serial.println("HTTP server started");
+  screenTitle = "State";
+  writeToScreen("\nCommand: 0\nPoints: 0", 1);
+}
+void loop() {
+  server.handleClient();
+  
+}
+
 String generatePage() {
-  String newPage = "<html><head><title>Simon commands</title></head><body></body><script>let instructions="+generateInstructions()+".split(\"-\");";
+  String newPage = "<html><head><title>Simon commands</title></head><body></body><script>let instructions=\""+generateInstructions()+"\".split(\"-\");";
   newPage += "let instDelay = 1500;showNextInstruction(0);function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");";
   newPage += "instEl.innerText = instructions[i];document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);showNextInstruction(i+1);}, instDelay);}</script></html>";
   return newPage;
 }
 
 String generateInstructions() {
-  String[] allInstructions = {"Simon says move to the right",
+  int instructionCount = 7;
+  String allInstructions[] = {"Simon says move to the right",
                               "Simon says move to the left",
                               "Simon says move up",
                               "Simon says move down",
@@ -171,14 +172,14 @@ String generateInstructions() {
                               };
   String instructionsString = "";
   
-  for(int i=0; i<sizeof(allInstructions); i++){
+  for(int i=0; i<instructionCount; i++){
     /*randInt = random(2);
     if(randInt == 0){*/
       instructionsString += allInstructions[i];
-      instructionsString += "-";
+      if (i!=instructionCount)
+        instructionsString += "-";
     //}
   }
-  
   return instructionsString; 
 }
 
