@@ -146,7 +146,6 @@ String generatePage() {
 }
 
 String generateInstructions() {
-  int instructionCount = 7;
   String allInstructions[] = {"Simon says move to the right",
                               "Simon says move to the left",
                               "Simon says move up",
@@ -170,15 +169,16 @@ String generateInstructions() {
                               "Move backward",
                               "Wave*/
                               };
+  int instructionCount = sizeof(allInstructions);
   String instructionsString = "";
-  
-  for(int i=0; i<instructionCount; i++){
-    /*randInt = random(2);
-    if(randInt == 0){*/
-      instructionsString += allInstructions[i];
-      if (i!=instructionCount)
-        instructionsString += "-";
-    //}
+
+  randomSeed(analogRead(0));  
+  int amountOfInstructions = random(2, instructionCount + 1);
+
+  for(int i=0; i<amountOfInstructions; i++){
+    instructionsString += allInstructions[random(instructionCount)];
+    if(i != amountOfInstructions)  
+      instructionsString += "-";
   }
   return instructionsString; 
 }
