@@ -7,33 +7,8 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-/*
-
-#define KEYA D3
-#define KEYB D4
 #define OLEDRESET 1 // GPIO1
 Adafruit_SSD1306 display(OLEDRESET);
-void setup() {
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // i n i t i al i ze with the I2C address
-  delay(1000);
-  pinMode(KEYA, INPUT);
-  pinMode(KEYB, INPUT);
-}
-
-void loop() {
-  display.clearDisplay( );
-  display.setCursor(0, 0);
-  display.setTextColor(WHITE);
-  display.setTextSize(2);
-  display.println("NDL");
-  display.setTextSize(1);
-  display.print("Key A = ");
-  display.println(digitalRead(KEYA) );
-  display.print("Key B = ");
-  display.println(digitalRead(KEYB) );
-  display.display( );
-  delay(200);
-}*/
 
 /*
 #define GES_REACTION_TIME 500
@@ -107,15 +82,14 @@ MDNSResponder mdns;
 ESP8266WebServer server(LISTEN_PORT);
 String startPage = "<html><head><title>Simon commands</title></head><body><a href=\"begin\"><button style=\"background-color:blue;color:white;\">Begin</button></a></body></html>";
 bool ledOn = false;
+String screenTitle = "";
 
 void setup() {
   Serial.begin(115200); // the serial speed
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // i n i t i al i ze with the I2C address
+  writeToScreen("Booting", 2);
   pinMode(LED_BUILTIN, OUTPUT); // the LED
   digitalWrite(LED_BUILTIN, ledOn); // the actual status is inverted
-  webPage += "<html><head><title>Simon commands</title></head><body><a id=\"startButton\" href=\"start\"><button style=\"background-color:blue;color:white;\">";
-  webPage += "Begin</button></a><script>let instructions="+instructions+".split(\"-\"); let instDelay = 1500;showNextInstruction(0);";
-  webPage += "function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");instEl.innerText = instructions[i];";
-  webPage += "document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);showNextInstruction(i+1);}, instDelay);}</script></body></html>";
   WiFi.begin(ssid, password); // make the WiFi connection
   Serial.println("Start connecting.");
   while (WiFi.status() != WL_CONNECTED) {
@@ -131,28 +105,37 @@ void setup() {
   }
   // make handlers for input from WiFi connection
   server.on("/" , [ ](){
-    server.send(200, "text/html" , webPage);
+    server.send(200, "text/html" , startPage);
   });
 
-  server.on("/button" , [ ](){
-    server.send(200, "text/html" , webPage);
+  server.on("/begin" , [ ](){
+    server.send(200, "text/html" , generatePage());
     ledOn = !ledOn;
-    Serial.print("led ");
-    Serial.println(ledOn);
     digitalWrite(LED_BUILTIN, !ledOn);
-    if (ledOn)
-      moveMotor(75);
-    else
-      stopMotor();
-    delay(100);
   });
 
   waitUntilMotorStart();
-  server.begin( ); // star t the server for WiFi input
+  server.begin( ); // start the server for WiFi input
   Serial.println("HTTP server started");
+  screenTitle = "State";
+  writeToScreen("\nCommand: 0\nPoints: 0", 1);
 }
 void loop() {
   server.handleClient();
+  
+}
+
+void writeToScreen(String text, int fontsize) {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.setTextColor(WHITE);
+  if (screenTitle!="") {
+    display.setTextSize(2);
+    display.println(screenTitle);
+  }
+  display.setTextSize(fontsize);
+  display.println(text);
+  display.display();
 }
 
 String generatePage() {
