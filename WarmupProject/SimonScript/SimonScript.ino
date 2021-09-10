@@ -33,6 +33,7 @@ bool simonWatching = false;
 int maxInstructions = 7;
 int randomisedInts[maxInstructions];
 int performedInstructions[maxInstructions];
+int performedInstructionCount = 0;
 
 void writeToScreen(String text, int fontsize) {
   display.clearDisplay();
