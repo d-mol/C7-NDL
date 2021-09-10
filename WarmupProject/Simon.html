@@ -1,23 +1,27 @@
 <html>
-    <head>Simon says</head>
+    <head><title>Simon commands</title></head>
     <body>
         <a id="startButton" href="start">
             <button style="background-color:blue;color:white;">
-                Start game
+                Begin
             </button>
         </a>
         <script>
             let instructions="UP-DOWN-LEFT-RIGHT".split("-"); 
             let instDelay = 1500;
-            for (let inst of instructions.split()) 
+            showNextInstruction(0);
+            function showNextInstruction(i)
             {
+                if (i==instructions.length)
+                    return;
                 let instEl = document.createElement("h1");
-                instEl.innerText = inst;
+                instEl.innerText = instructions[i];
                 document.body.appendChild(instEl);
                 setTimeout(() => {
                     document.body.removeChild(instEl);
+                    showNextInstruction(i+1);
                 }, instDelay);
-            };
+            }
         </script>
     </body>
 </html>
