@@ -178,10 +178,10 @@ String generateInstructions() {
   String instructionsString = "";
 
   randomSeed(analogRead(0));  
-  int amountOfInstructions = random(2, instructionCount + 1);
+  int amountOfInstructions = random(2, maxInstructions + 1);
 
   for(int i=0; i<amountOfInstructions; i++){
-    int randInt = random(instructionCount);
+    int randInt = random(maxInstructions);
     randomisedInts[i] = randInt;
     instructionsString += allInstructions[randInt];
     if(i != amountOfInstructions)  
