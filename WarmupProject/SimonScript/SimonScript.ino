@@ -10,24 +10,97 @@
 #define OLEDRESET 1 // GPIO1
 Adafruit_SSD1306 display(OLEDRESET);
 
-/*
 #define GES_REACTION_TIME 500
 #define GES_ENTRY_TIME 800
 #define GES_QUIT_TIME 1000
 #define I2C_ADDRESS 0x43
 #define I2C_ADDRESS2 0x44
-void setup() {
-  Serial.begin(9600);
-  uint8_t error = paj7620Init( ); // i n i t i al i ze Paj7620 reg isters
-  if (error) {
-    Serial.print("INIT ERROR,CODE: ");
-  Serial.println(error);
+#define LISTEN_PORT 80
+#define PWMFREQUENCY 1000
+
+LOLIN_I2C_MOTOR motor(DEFAULT_I2C_MOTOR_ADDRESS); //I2C address 0x30 SEE NOTEBELOW
+/*const char* ssid = "ASUS_NDL"; // name of local WiFi network in the NDL
+const char* password = "RT-AC66U"; // the password of the WiFi network*/
+const char* ssid = "NDL_24G"; // name of local WiFi network in the NDL
+const char* password = "RT-AC66U"; // the password of the WiFi network
+MDNSResponder mdns;
+ESP8266WebServer server(LISTEN_PORT);
+String startPage = "<html><head><title>Simon commands</title></head><body><h3>Simon is impatiënt and has given up on asking politely!</h3><p>He now only commands; Do what he says and be rewarded!</p><a href=\"begin\"><button style=\"background-color:blue;color:white;\">Begin</button></a></body></html>";
+String readyPage = "<html><head><title>Simon commands</title></head><body><a href=\"check\"><button style=\"background-color:blue;color:white;\">Check your sequence</button></a></body></html>";
+String screenTitle = "";
+bool simonWatching = false;
+
+void writeToScreen(String text, int fontsize) {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.setTextColor(WHITE);
+  if (screenTitle!="") {
+    display.setTextSize(2);
+    display.println(screenTitle);
   }
+  display.setTextSize(fontsize);
+  display.println(text);
+  display.display();
 }
 
+void setup() {
+  Serial.begin(115200); // the serial speed
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with the I2C address
+  writeToScreen("Booting", 2);
+  pinMode(LED_BUILTIN, OUTPUT); // the LED
+  digitalWrite(LED_BUILTIN, HIGH); // the actual status is inverted
+  WiFi.begin(ssid, password); // make the WiFi connection
+  Serial.println("Start connecting.");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.print("Connected to ");
+  Serial.print(ssid);
+  Serial.print(". IP address: ");
+  Serial.println(WiFi.localIP());
+  if (mdns.begin("esp8266" , WiFi.localIP())) {
+    Serial.println("MDNS responder started");
+  }
+  
+  server.on("/" , [ ](){
+    server.send(200, "text/html" , startPage);
+  });
+
+  server.on("/begin" , [ ](){
+    server.send(200, "text/html" , generateInstructionPage());
+  });
+
+  server.on("/ready" , [ ](){
+    server.send(200, "text/html" , readyPage);
+    digitalWrite(LED_BUILTIN, LOW);
+  });
+
+  server.on("/check" , [ ](){
+    server.send(200, "text/html" , generateCheckPage());
+    digitalWrite(LED_BUILTIN, LOW);
+  });
+
+  uint8_t error = paj7620Init( ); // initialize Paj7620 registers
+  if (error) {
+    Serial.print("INIT ERROR,CODE: ");
+    Serial.println(error);
+  }
+  waitUntilMotorStart();
+  server.begin(); // start the server for WiFi input
+  Serial.println("HTTP server started");
+  screenTitle = "State";
+  writeToScreen("\nCommand: 0\nPoints: 0", 1);
+}
 void loop() {
+  server.handleClient();
+  handleGestures()
+}
+
+void handleGestures()
+{
   uint8_t data = 0, data1 = 0, error;
-  error = paj7620ReadReg(I2C_ADDRESS, 1, &data); // Read gesture resul t .
+  error = paj7620ReadReg(I2C_ADDRESS, 1, &data); // Read gesture result.
   if (!error) {
     switch (data) {
       case GES_RIGHT_FLAG:
@@ -67,82 +140,16 @@ void loop() {
       }
   }
   delay(100);
-}*/
-
-
-#define LISTEN_PORT 80
-#define PWMFREQUENCY 1000
-
-LOLIN_I2C_MOTOR motor(DEFAULT_I2C_MOTOR_ADDRESS); //I2C address 0x30 SEE NOTEBELOW
-/*const char* ssid = "ASUS_NDL"; // name of local WiFi network in the NDL
-const char* password = "RT-AC66U"; // the password of the WiFi network*/
-const char* ssid = "NDL_24G"; // name of local WiFi network in the NDL
-const char* password = "RT-AC66U"; // the password of the WiFi network
-MDNSResponder mdns;
-ESP8266WebServer server(LISTEN_PORT);
-String startPage = "<html><head><title>Simon commands</title></head><body><a href=\"begin\"><button style=\"background-color:blue;color:white;\">Begin</button></a></body></html>";
-bool ledOn = false;
-String screenTitle = "";
-
-void writeToScreen(String text, int fontsize) {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.setTextColor(WHITE);
-  if (screenTitle!="") {
-    display.setTextSize(2);
-    display.println(screenTitle);
-  }
-  display.setTextSize(fontsize);
-  display.println(text);
-  display.display();
 }
 
-void setup() {
-  Serial.begin(115200); // the serial speed
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with the I2C address
-  writeToScreen("Booting", 2);
-  pinMode(LED_BUILTIN, OUTPUT); // the LED
-  digitalWrite(LED_BUILTIN, ledOn); // the actual status is inverted
-  WiFi.begin(ssid, password); // make the WiFi connection
-  Serial.println("Start connecting.");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.print("Connected to ");
-  Serial.print(ssid);
-  Serial.print(". IP address: ");
-  Serial.println(WiFi.localIP());
-  if (mdns.begin("esp8266" , WiFi.localIP())) {
-    Serial.println("MDNS responder started");
-  }
-  
-  server.on("/" , [ ](){
-    server.send(200, "text/html" , startPage);
-  });
-
-  server.on("/begin" , [ ](){
-    server.send(200, "text/html" , generatePage());
-    ledOn = !ledOn;
-    digitalWrite(LED_BUILTIN, !ledOn);
-  });
-
-  waitUntilMotorStart();
-  server.begin(); // start the server for WiFi input
-  Serial.println("HTTP server started");
-  screenTitle = "State";
-  writeToScreen("\nCommand: 0\nPoints: 0", 1);
-}
-void loop() {
-  server.handleClient();
-  
+String generateCheckPage() {
+  String message;
+  if 
+  return "<html><head><title>Simon commands</title></head><body><h1>"+message+"</h1></body></html>"
 }
 
-String generatePage() {
-  String newPage = "<html><head><title>Simon commands</title></head><body></body><script>let instructions=\""+generateInstructions()+"\".split(\"-\");";
-  newPage += "let instDelay = 1500;showNextInstruction(0);function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");";
-  newPage += "instEl.innerText = instructions[i];document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);showNextInstruction(i+1);}, instDelay);}</script></html>";
-  return newPage;
+String generateInstructionPage() {
+  return "<html><head><title>Simon commands</title></head><body><a href=\"ready\"><button style=\"background-color:blue;color:white;\">Ready</button></a></body><script>let instructions=\""+generateInstructions()+"\".split(\"-\"); let instDelay = 1500;showNextInstruction(0);function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");instEl.innerText = instructions[i];document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);setTimeout(() => {showNextInstruction(i+1);}, 250)}, instDelay);}</script></html>";
 }
 
 String generateInstructions() {

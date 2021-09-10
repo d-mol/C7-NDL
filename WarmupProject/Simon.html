@@ -34,8 +34,28 @@
             document.body.appendChild(instEl);
             setTimeout(() => {
                 document.body.removeChild(instEl);
-                showNextInstruction(i+1);
+                setTimeout(() => {
+                    showNextInstruction(i+1);
+                }, 250)
             }, instDelay);
         }
     </script>
+</html>
+
+<html>
+    <head><title>Simon commands</title></head>
+    <body>
+        <a href="check">
+            <button style="background-color:blue;color:white;">
+                Check your sequence
+            </button>
+        </a>
+    </body>
+</html>
+
+<html>
+    <head><title>Simon commands</title></head>
+    <body>
+        <h1></h1>
+    </body>
 </html>
