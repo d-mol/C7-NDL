@@ -163,7 +163,40 @@ String generatePage() {
 }
 
 String generateInstructions() {
+  String[] allInstructions = {"Simon says move to the right",
+                              "Simon says move to the left",
+                              "Simon says move up",
+                              "Simon says move down",
+                              "Simon says move forward",
+                              "Simon says move backward",
+                              "Simon says wave"
+                              /*
+                              ,
+                              "Simon says move clockwise",
+                              "Simon says move counterclockwise",
+      
+                              //
+                              "Move to the right",
+                              "Move to the left",
+                              "Move clockwise",
+                              "Move counterclockwise",
+                              "Move up",
+                              "Move down",
+                              "Move forward",
+                              "Move backward",
+                              "Wave*/
+                              };
+  String instructionsString = "";
   
+  for(int i=0; i<sizeof(allInstructions); i++){
+    /*randInt = random(2);
+    if(randInt == 0){*/
+      instructionsString += allInstructions[i];
+      instructionsString += "-";
+    //}
+  }
+  
+  return instructionsString; 
 }
 
 void waitUntilMotorStart() {
