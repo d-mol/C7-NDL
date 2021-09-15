@@ -25,8 +25,13 @@ const char* ssid = "NDL_24G"; // name of local WiFi network in the NDL
 const char* password = "RT-AC66U"; // the password of the WiFi network
 MDNSResponder mdns;
 ESP8266WebServer server(LISTEN_PORT);
-String startPage = "<html><head><title>Simon commands</title></head><body><h3>Simon is impatient and has given up on asking politely!</h3><p>He now only commands; Do what he says and be rewarded!</p><a href=\"begin\"><button style=\"background-color:blue;color:white;\">Begin</button></a></body></html>";
-String readyPage = "<html><head><title>Simon commands</title></head><body><a href=\"check\"><button style=\"background-color:blue;color:white;\">Check your sequence</button></a></body></html>";
+
+String button(String redirect, String msg){
+  return "<a href=\""+redirect+"\"><button style=\"background-color:blue;color:white;\">"+ msg +"</button></a>";
+}
+
+String startPage = "<html><head><title>Simon commands</title></head><body><h3>Simon is impatient and has given up on asking politely!</h3><p>He now only commands; Do what he says and be rewarded!</p>"+button("begin", "Begin")+"</body></html>";
+String readyPage = "<html><head><title>Simon commands</title></head><body>"+ button("check", "Check your sequence")+"</body></html>";
 String allInstructions[] = {"Simon says move to the right",
                               "Simon says move to the left",
                               "Simon says move up",
@@ -195,6 +200,8 @@ String generateCheckPage() {
   }
 
   if (expected.equals(performed) && pointsCollected >= 2) {
+    moveMotor(50);
+    writeToScreen("Victory", 2);
     return generateEndPage();
   } else if(expected.equals(performed) && pointsCollected < 2){
     pointsCollected++;
@@ -208,16 +215,13 @@ String generateEndPage(){
 }
 
 String generateLossPage(){
-  return "<html><head><title>Simon commands</title></head><body><h1>Simon is extremely disappointed that you couldn't even follow his most basic instructions. Try again, or you will be banished to the shadow realm.</h1><br>"+startButton()+"</body></html>";
+  return "<html><head><title>Simon commands</title></head><body><h1>Simon is extremely disappointed that you couldn't even follow his most basic instructions. Try again, or you will be banished to the shadow realm.</h1><br>"+button("begin","Try again")+"</body></html>";
 }
 
 String generateVictoryPage(){
-  return "<html><head><title>Simon commands</title></head><body><h1>Woop woop, you got this sequence right! Click the button to try again.</h1><br>"+ startButton() + "</body></html>";
+  return "<html><head><title>Simon commands</title></head><body><h1>Woop woop, you got this sequence right! Click the button to get the next sequence.</h1><br>"+ button("begin", "Next sequence") + "</body></html>";
 }
 
-String startButton(){
-  return "<a href=\"ready\"><button style=\"background-color:blue;color:white;\">Try again!</button></a>";
-}
 
 String generateInstructionPage() {
   return "<html><head><title>Simon commands</title></head><body><a href=\"ready\"><button style=\"background-color:blue;color:white;\">Ready</button></a></body><script>let instructions=\""+generateInstructions()+"\".split(\"-\"); let instDelay = 1500;showNextInstruction(0);function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");instEl.innerText = instructions[i];document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);setTimeout(() => {showNextInstruction(i+1);}, 250)}, instDelay);}</script></html>";
