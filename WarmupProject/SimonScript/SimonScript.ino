@@ -41,6 +41,7 @@ String allInstructions[] = {"Simon says move to the right",
                               };
 
 String screenTitle = "";
+String gestures = "";
 bool simonWatching = false;
 
 const int maxInstructions = 4;
@@ -57,7 +58,7 @@ void writeToScreen(String text, int fontsize) {
   display.setCursor(0, 0);
   display.setTextColor(WHITE);
   if (screenTitle!="") {
-    display.setTextSize(2);
+    display.setTextSize(1);
     display.println(screenTitle);
   }
   display.setTextSize(fontsize);
@@ -103,8 +104,9 @@ void setup() {
     simonWatching = false;
     server.send(200, "text/html" , generateCheckPage());
     performedInstructionCount = 0;
+    gestures = "";
     digitalWrite(LED_BUILTIN, LOW);
-    updateScreen(performedInstructionCount, pointsCollected);
+    updateScreen();
   });
   
   uint8_t error = paj7620Init( ); // initialize Paj7620 registers
@@ -116,7 +118,7 @@ void setup() {
   server.begin(); // start the server for WiFi input
   Serial.println("HTTP server started");
   screenTitle = "State";
-  updateScreen(0, 0);
+  updateScreen();
 }
 void loop() {
   server.handleClient();
@@ -124,9 +126,9 @@ void loop() {
     handleGestures();
 }
 
-void updateScreen(int inputs, int points)
+void updateScreen()
 {
-  writeToScreen("\nInputs: "+String(inputs)+"\nPoints: "+String(points), 1);  
+  writeToScreen("\nInputs:\n\n"+ gestures +"\n\nPoints: "+String(pointsCollected), 1);  
 }
 
 void handleGestures()
@@ -139,38 +141,44 @@ void handleGestures()
         Serial.println("Right");
         performedInstructions[performedInstructionCount] = 0;
         performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
+        gestures += "R ";
+        updateScreen();
         break;
       case GES_LEFT_FLAG:
         Serial.println("Left");
         performedInstructions[performedInstructionCount] = 1;
         performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
+        gestures += "L ";
+        updateScreen();
         break;
       case GES_UP_FLAG:
         Serial.println("Up");
         performedInstructions[performedInstructionCount] = 2;
         performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
+        updateScreen();
+        gestures += "U ";
         break;
       case GES_DOWN_FLAG:
         Serial.println("Down");
         performedInstructions[performedInstructionCount] = 3;
         performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
+        gestures += "D ";
+        updateScreen();
         break;
       case GES_FORWARD_FLAG:
         Serial.println("Forward");
         performedInstructions[performedInstructionCount] = 4;
         performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
+        gestures += "F ";
+        updateScreen();
         delay(GES_QUIT_TIME);
         break;
       case GES_BACKWARD_FLAG:
         Serial.println("Backward");
         performedInstructions[performedInstructionCount] = 5;
         performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
+        gestures += "B ";
+        updateScreen();
         delay(GES_QUIT_TIME);
         break;
       //We decided to drop support for clockwise, counter clockwise and wave since they were too unreliable.
