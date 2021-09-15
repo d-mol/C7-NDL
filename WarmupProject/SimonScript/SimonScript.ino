@@ -57,18 +57,22 @@ int pointsCollected = 0;
 int pointsNeeded = 3;
 long lastTime = 0;
 
+/*
+Screen setup
+*/
+
 void writeToScreen(String text, int fontsize) {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.setTextColor(WHITE);
-  if (screenTitle!="") {
-    //display.setTextSize(2);
-    //display.println(screenTitle);
-  }
   display.setTextSize(fontsize);
   display.println(text);
   display.display();
 }
+
+/*
+General setup. On check, several globals are reset.
+*/
 
 void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); //initialize with the I2C address
@@ -124,6 +128,11 @@ void setup() {
   screenTitle = "State";
   updateScreen();
 }
+
+/* 
+If simon is watching, it handles the gestures with a small delay after each gesture.
+*/
+
 void loop() {
   server.handleClient();
   if (simonWatching && performedInstructionCount < maxInstructions && millis() - DELAY > lastTime){
@@ -136,6 +145,10 @@ void updateScreen()
 {
   writeToScreen("Inputs:\n\n"+ gestures +"\n\nPoints: "+String(pointsCollected), 1);  
 }
+
+/*
+Handles the gestures. If a gesture is detected, it is saved in the performedInstructions array and the corresponding letter is added to the screen.
+*/
 
 void handleGestures()
 {
@@ -194,19 +207,21 @@ void handleGestures()
   }
 }
 
+/*
+Retrieves the instructions and the performed gestures , compares them and updates the page, and if needed the screen and the amount of points
+*/
+
 String generateCheckPage() {
   String performed = "";
   String expected = "";
   for(int i=0; i<amountOfInstructions; i++){
     expected += allInstructions[randomisedInts[i]];
-    //expected += (char) (randomisedInts[i]+48);
     if(i != amountOfInstructions)
       expected += "-";
   }
 
   for(int i=0; i<performedInstructionCount; i++){
     performed += allInstructions[performedInstructions[i]];
-    //performed += (char) (performedInstructions[i]+48);
     if(i != performedInstructionCount)
       performed += "-";
   }
@@ -221,7 +236,9 @@ String generateCheckPage() {
   }
   return generateLossPage();
 }
-
+/* 
+Some functions to generate webpages, depending on the outcome of the game. A button is added with a redirect parameter and a content parameter
+*/
 String generateEndPage(){
   return "<html><head><title>Simon commands</title></head><body><h1>Wow, Simon is impressed! You may get a candy.</h1><p>If you are greedy, click this button to start over and get more candy!</p>"+button("/", "Start over")+"</body></html>";
 }
@@ -234,9 +251,17 @@ String generateVictoryPage(){
   return "<html><head><title>Simon commands</title></head><body><h1>Woop woop, you got this sequence right! Click the button to get the next sequence.</h1><br>"+ button("begin", "Next sequence") + "</body></html>";
 }
 
+/*
+Generate the instruction page, which retrieves the instructions and shows them one at a time using JavaScript
+*/
+
 String generateInstructionPage() {
   return "<html><head><title>Simon commands</title></head><body><a href=\"ready\"><button style=\"background-color:blue;color:white;\">Ready</button></a></body><script>let instructions=\""+generateInstructions()+"\".split(\"-\"); let instDelay = 1500;showNextInstruction(0);function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");instEl.innerText = instructions[i];document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);setTimeout(() => {showNextInstruction(i+1);}, 250)}, instDelay);}</script></html>";
 }
+
+/*
+Get a random set of instructions from all the instructions. Duplicates are allowed
+*/
 
 String generateInstructions() {
   String instructionsString = "";
@@ -250,6 +275,10 @@ String generateInstructions() {
   }
   return instructionsString; 
 }
+
+/*
+Some general motor functions, including one to start it with a duty parameter, and a function to stop it.
+ */
 
 void waitUntilMotorStart() {
   while (motor.PRODUCT_ID != PRODUCT_ID_I2C_MOTOR) { //wait motor shield ready .
