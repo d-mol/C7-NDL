@@ -236,7 +236,7 @@ String generateInstructionPage() {
 
 String generateInstructions() {
   String instructionsString = "";
-  amountOfInstructions = random(2, maxInstructions + 1);
+  amountOfInstructions = random(minInstructions, maxInstructions + 1);
   for(int i=0; i<amountOfInstructions; i++){
     int randInt = random(totalInstructions);
     randomisedInts[i] = randInt;
