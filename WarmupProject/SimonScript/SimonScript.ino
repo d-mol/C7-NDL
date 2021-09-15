@@ -114,7 +114,9 @@ void setup() {
     server.send(200, "text/html" , generateCheckPage());
     performedInstructionCount = 0;
     digitalWrite(LED_BUILTIN, LOW);
+    updateScreen(performedInstructionCount, pointsCollected);
   });
+  
   uint8_t error = paj7620Init( ); // initialize Paj7620 registers
   if (error) {
     Serial.print("INIT ERROR,CODE: ");
@@ -181,28 +183,10 @@ void handleGestures()
         updateScreen(performedInstructionCount, pointsCollected);
         delay(GES_QUIT_TIME);
         break;
-      case GES_CLOCKWISE_FLAG:
-        Serial.println("Clockwise");
-        performedInstructions[performedInstructionCount] = 7;
-        performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
-        break;
-      case GES_COUNT_CLOCKWISE_FLAG:
-        Serial.println("Counter Clockwise");
-        performedInstructions[performedInstructionCount] = 8;
-        performedInstructionCount++;
-        updateScreen(performedInstructionCount, pointsCollected);
-        break;
+      //We decided to drop support for clockwise, counter clockwise and wave since they were too unreliable.
       default:
         paj7620ReadReg(I2C_ADDRESS2, 1, &data);
-        if (data == GES_WAVE_FLAG) {
-          Serial.println("Wave");
-          performedInstructions[performedInstructionCount] = 6;
-          performedInstructionCount++;
-          updateScreen(performedInstructionCount, pointsCollected);
-        } else {
-          Serial.print(".");
-        }
+        Serial.print(".");
         break;
       }
   }
