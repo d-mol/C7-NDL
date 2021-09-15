@@ -60,6 +60,7 @@ int randomisedInts[maxInstructions];
 int performedInstructions[maxInstructions];
 int performedInstructionCount = 0;
 int amountOfInstructions;
+int pointsCollected = 0;
 
 void writeToScreen(String text, int fontsize) {
   display.clearDisplay();
@@ -123,12 +124,17 @@ void setup() {
   server.begin(); // start the server for WiFi input
   Serial.println("HTTP server started");
   screenTitle = "State";
-  writeToScreen("\nCommand: 0\nPoints: 0", 1);
+  updateScreen(0, 0);
 }
 void loop() {
   server.handleClient();
   if (simonWatching && performedInstructionCount < maxInstructions)
     handleGestures();
+}
+
+void updateScreen(int inputs, int points)
+{
+  writeToScreen("\nInputs: "+String(inputs)+"\nPoints: "+String(points), 1);  
 }
 
 void handleGestures()
@@ -141,43 +147,51 @@ void handleGestures()
         Serial.println("Right");
         performedInstructions[performedInstructionCount] = 0;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         break;
       case GES_LEFT_FLAG:
         Serial.println("Left");
         performedInstructions[performedInstructionCount] = 1;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         break;
       case GES_UP_FLAG:
         Serial.println("Up");
         performedInstructions[performedInstructionCount] = 2;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         break;
       case GES_DOWN_FLAG:
         Serial.println("Down");
         performedInstructions[performedInstructionCount] = 3;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         break;
       case GES_FORWARD_FLAG:
         Serial.println("Forward");
         performedInstructions[performedInstructionCount] = 4;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         delay(GES_QUIT_TIME);
         break;
       case GES_BACKWARD_FLAG:
         Serial.println("Backward");
         performedInstructions[performedInstructionCount] = 5;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         delay(GES_QUIT_TIME);
         break;
       case GES_CLOCKWISE_FLAG:
         Serial.println("Clockwise");
         performedInstructions[performedInstructionCount] = 7;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         break;
       case GES_COUNT_CLOCKWISE_FLAG:
         Serial.println("Counter Clockwise");
         performedInstructions[performedInstructionCount] = 8;
         performedInstructionCount++;
+        updateScreen(performedInstructionCount, pointsCollected);
         break;
       default:
         paj7620ReadReg(I2C_ADDRESS2, 1, &data);
@@ -185,6 +199,7 @@ void handleGestures()
           Serial.println("Wave");
           performedInstructions[performedInstructionCount] = 6;
           performedInstructionCount++;
+          updateScreen(performedInstructionCount, pointsCollected);
         } else {
           Serial.print(".");
         }
@@ -209,6 +224,11 @@ String generateCheckPage() {
     performed += (char) (performedInstructions[i]+48);
     if(i != performedInstructionCount)
       performed += "-";
+  }
+
+  if (expected.equals(performed)) {
+    pointsCollected++;
+    updateScreen(performedInstructionCount, pointsCollected);
   }
   return "<html><head><title>Simon commands</title></head><body><h1>"+expected+"</h1><h1>"+performed+"</h1><h1>"+expected.equals(performed)+"</h1></body></html>";
 }
