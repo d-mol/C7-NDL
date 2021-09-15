@@ -210,18 +210,18 @@ void handleGestures()
 }
 
 String generateCheckPage() {
-  String performed = "";
-  String expected = "";
+  String performed = "You did ";
+  String expected = "Simon wanted you to ";
   for(int i=0; i<amountOfInstructions; i++){
-    //expected += allInstructions[randomisedInts[i]];
-    expected += (char) (randomisedInts[i]+48);
+    expected += allInstructions[randomisedInts[i]].substr(10);
+    //expected += (char) (randomisedInts[i]+48);
     if(i != amountOfInstructions)
       expected += "-";
   }
 
   for(int i=0; i<performedInstructionCount; i++){
-    //performed += allInstructions[performedInstructions[i]];
-    performed += (char) (performedInstructions[i]+48);
+    performed += allInstructions[performedInstructions[i]];
+    //performed += (char) (performedInstructions[i]+48);
     if(i != performedInstructionCount)
       performed += "-";
   }
