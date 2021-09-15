@@ -58,7 +58,7 @@ void writeToScreen(String text, int fontsize) {
   display.setCursor(0, 0);
   display.setTextColor(WHITE);
   if (screenTitle!="") {
-    display.setTextSize(1);
+    display.setTextSize(2);
     display.println(screenTitle);
   }
   display.setTextSize(fontsize);
@@ -128,7 +128,7 @@ void loop() {
 
 void updateScreen()
 {
-  writeToScreen("\nInputs:\n\n"+ gestures +"\n\nPoints: "+String(pointsCollected), 1);  
+  writeToScreen("Inputs:\n\n"+ gestures +"\n\nPoints: "+String(pointsCollected), 1);  
 }
 
 void handleGestures()
