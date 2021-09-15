@@ -58,8 +58,8 @@ void writeToScreen(String text, int fontsize) {
   display.setCursor(0, 0);
   display.setTextColor(WHITE);
   if (screenTitle!="") {
-    display.setTextSize(2);
-    display.println(screenTitle);
+    //display.setTextSize(2);
+    //display.println(screenTitle);
   }
   display.setTextSize(fontsize);
   display.println(text);
@@ -171,7 +171,6 @@ void handleGestures()
         performedInstructionCount++;
         gestures += "F ";
         updateScreen();
-        delay(GES_QUIT_TIME);
         break;
       case GES_BACKWARD_FLAG:
         Serial.println("Backward");
@@ -179,7 +178,6 @@ void handleGestures()
         performedInstructionCount++;
         gestures += "B ";
         updateScreen();
-        delay(GES_QUIT_TIME);
         break;
       //We decided to drop support for clockwise, counter clockwise and wave since they were too unreliable.
       default:
