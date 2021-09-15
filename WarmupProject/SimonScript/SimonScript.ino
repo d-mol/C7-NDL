@@ -210,10 +210,10 @@ void handleGestures()
 }
 
 String generateCheckPage() {
-  String performed = "You did ";
-  String expected = "Simon wanted you to ";
+  String performed = "";
+  String expected = "";
   for(int i=0; i<amountOfInstructions; i++){
-    expected += allInstructions[randomisedInts[i]].substr(10);
+    expected += allInstructions[randomisedInts[i]];
     //expected += (char) (randomisedInts[i]+48);
     if(i != amountOfInstructions)
       expected += "-";
@@ -226,11 +226,29 @@ String generateCheckPage() {
       performed += "-";
   }
 
-  if (expected.equals(performed)) {
+  if (expected.equals(performed) && pointsCollected >= 2) {
+    return generateEndPage();
+  } else if(expected.equals(performed) && pointsCollected < 2){
     pointsCollected++;
-    updateScreen(performedInstructionCount, pointsCollected);
+    return generateVictoryPage();
   }
-  return "<html><head><title>Simon commands</title></head><body><h1>"+expected+"</h1><h1>"+performed+"</h1><h1>"+expected.equals(performed)+"</h1></body></html>";
+  return generateLossPage();
+}
+
+String generateEndPage(){
+  return "<html><head><title>Simon commands</title></head><body><h1>Wow, Simon is impressed! You may get a candy.</h1></body></html>";
+}
+
+String generateLossPage(){
+  return "<html><head><title>Simon commands</title></head><body><h1>Simon is extremely disappointed that you couldn't even follow his most basic instructions. Try again, or you will be banished to the shadow realm.</h1><br>"+startButton()+"</body></html>";
+}
+
+String generateVictoryPage(){
+  return "<html><head><title>Simon commands</title></head><body><h1>Woop woop, you got this sequence right! Click the button to try again.</h1><br>"+ startButton() + "</body></html>";
+}
+
+String startButton(){
+  return "<a href=\"ready\"><button style=\"background-color:blue;color:white;\">Try again!</button></a>";
 }
 
 String generateInstructionPage() {
