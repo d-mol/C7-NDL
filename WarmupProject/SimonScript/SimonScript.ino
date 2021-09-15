@@ -54,6 +54,9 @@ int amountOfInstructions;
 int pointsCollected = 0;
 int pointsNeeded = 3;
 
+#define DELAY 100
+long lastTime = 0;
+
 void writeToScreen(String text, int fontsize) {
   display.clearDisplay();
   display.setCursor(0, 0);
@@ -123,8 +126,10 @@ void setup() {
 }
 void loop() {
   server.handleClient();
-  if (simonWatching && performedInstructionCount < maxInstructions)
+  if (simonWatching && performedInstructionCount < maxInstructions && millis() - DELAY > lastTime){
     handleGestures();
+    lastTime += DELAY;
+  }
 }
 
 void updateScreen()
@@ -187,7 +192,6 @@ void handleGestures()
         break;
       }
   }
-  delay(100);
 }
 
 String generateCheckPage() {
