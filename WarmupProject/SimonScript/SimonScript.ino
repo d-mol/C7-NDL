@@ -44,7 +44,8 @@ String screenTitle = "";
 String gestures = "";
 bool simonWatching = false;
 
-const int maxInstructions = 4;
+const int maxInstructions = 5;
+const int minInstructions = 3;
 const int totalInstructions = 6;
 int randomisedInts[maxInstructions];
 int performedInstructions[maxInstructions];
