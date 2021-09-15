@@ -32,30 +32,14 @@ String allInstructions[] = {"Simon says move to the right",
                               "Simon says move up",
                               "Simon says move down",
                               "Simon says move forward",
-                              "Simon says move backward",
-                              "Simon says wave"
-                              /*
-                              ,
-                              "Simon says move clockwise",
-                              "Simon says move counterclockwise",
-      
-                              //
-                              "Move to the right",
-                              "Move to the left",
-                              "Move clockwise",
-                              "Move counterclockwise",
-                              "Move up",
-                              "Move down",
-                              "Move forward",
-                              "Move backward",
-                              "Wave*/
+                              "Simon says move backward"
                               };
 
 String screenTitle = "";
 bool simonWatching = false;
 
 const int maxInstructions = 4;
-const int totalInstructions = 7;
+const int totalInstructions = 6;
 int randomisedInts[maxInstructions];
 int performedInstructions[maxInstructions];
 int performedInstructionCount = 0;
