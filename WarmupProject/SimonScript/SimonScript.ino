@@ -110,9 +110,9 @@ void setup() {
   });
 
   server.on("/check" , [ ](){
-    performedInstructionCount = 0;
     simonWatching = false;
     server.send(200, "text/html" , generateCheckPage());
+    performedInstructionCount = 0;
     digitalWrite(LED_BUILTIN, LOW);
   });
   uint8_t error = paj7620Init( ); // initialize Paj7620 registers
