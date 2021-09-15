@@ -105,7 +105,7 @@ void setup() {
     server.send(200, "text/html" , generateCheckPage());
     performedInstructionCount = 0;
     gestures = "";
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, HIGH);
     updateScreen();
   });
   
