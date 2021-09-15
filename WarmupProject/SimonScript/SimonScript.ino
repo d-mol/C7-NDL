@@ -50,6 +50,7 @@ int performedInstructions[maxInstructions];
 int performedInstructionCount = 0;
 int amountOfInstructions;
 int pointsCollected = 0;
+int pointsNeeded = 3;
 
 void writeToScreen(String text, int fontsize) {
   display.clearDisplay();
@@ -199,11 +200,11 @@ String generateCheckPage() {
       performed += "-";
   }
 
-  if (expected.equals(performed) && pointsCollected >= 2) {
+  if (expected.equals(performed) && pointsCollected >= pointsNeeded - 1) {
     moveMotor(50);
     writeToScreen("Victory", 2);
     return generateEndPage();
-  } else if(expected.equals(performed) && pointsCollected < 2){
+  } else if(expected.equals(performed) && pointsCollected < pointsNeeded - 1){
     pointsCollected++;
     return generateVictoryPage();
   }
@@ -221,7 +222,6 @@ String generateLossPage(){
 String generateVictoryPage(){
   return "<html><head><title>Simon commands</title></head><body><h1>Woop woop, you got this sequence right! Click the button to get the next sequence.</h1><br>"+ button("begin", "Next sequence") + "</body></html>";
 }
-
 
 String generateInstructionPage() {
   return "<html><head><title>Simon commands</title></head><body><a href=\"ready\"><button style=\"background-color:blue;color:white;\">Ready</button></a></body><script>let instructions=\""+generateInstructions()+"\".split(\"-\"); let instDelay = 1500;showNextInstruction(0);function showNextInstruction(i){if (i==instructions.length)return;let instEl = document.createElement(\"h1\");instEl.innerText = instructions[i];document.body.appendChild(instEl);setTimeout(() => {document.body.removeChild(instEl);setTimeout(() => {showNextInstruction(i+1);}, 250)}, instDelay);}</script></html>";
