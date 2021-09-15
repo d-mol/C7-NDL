@@ -212,7 +212,7 @@ String generateCheckPage() {
 }
 
 String generateEndPage(){
-  return "<html><head><title>Simon commands</title></head><body><h1>Wow, Simon is impressed! You may get a candy.</h1></body></html>";
+  return "<html><head><title>Simon commands</title></head><body><h1>Wow, Simon is impressed! You may get a candy.</h1><p>If you are greedy, click this button to start over and get more candy!</p>"+button("/", "Start over")+"</body></html>";
 }
 
 String generateLossPage(){
