@@ -18,6 +18,8 @@ Adafruit_SSD1306 display(OLEDRESET);
 #define LISTEN_PORT 80
 #define PWMFREQUENCY 1000
 
+#define DELAY 100
+
 LOLIN_I2C_MOTOR motor(DEFAULT_I2C_MOTOR_ADDRESS); //I2C address 0x30 SEE NOTEBELOW
 /*const char* ssid = "ASUS_NDL"; // name of local WiFi network in the NDL
 const char* password = "RT-AC66U"; // the password of the WiFi network*/
@@ -53,8 +55,6 @@ int performedInstructionCount = 0;
 int amountOfInstructions;
 int pointsCollected = 0;
 int pointsNeeded = 3;
-
-#define DELAY 100
 long lastTime = 0;
 
 void writeToScreen(String text, int fontsize) {
